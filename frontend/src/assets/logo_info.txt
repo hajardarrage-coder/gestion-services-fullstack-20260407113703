@@ -1,0 +1,3 @@
+/* University Logo provided by user */
+/* Using base64 or referencing the uploaded file path if available */
+/* Path: C:\Users\hp\.gemini\antigravity\brain\f9669ec6-8873-4bee-aa7b-fac929cdb40c\university_logo.png */

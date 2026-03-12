@@ -1,0 +1,8 @@
+{
+    "php.validate.executablePath": "php",
+    "php.suggest.basic": false,
+    "intelephense.environment.phpVersion": "8.2.0",
+    "php.problems.exclude": {
+        "vendor": true
+    }
+}
