@@ -212,8 +212,6 @@ La réalisation combine une API sécurisée, une interface moderne et un service
 - Backend : `APP_URL`, `DB_*`, `SANCTUM_STATEFUL_DOMAINS`
 - Secure API : `SMTP_USER`, `SMTP_PASS`, `PRESIDENT_EMAIL`, `SERVICE_EMAIL`, `DB_*`, `ALLOWED_ORIGINS`
 
----
-
 ## CONCLUSION GÉNÉRALE
 
 Le projet Gestion-services est une application web structurée pour répondre aux besoins de gestion de demandes, import/export et statistiques. Son architecture modulaire en backend Laravel, frontend React et microservice Node garantit flexibilité, sécurité et évolutivité.

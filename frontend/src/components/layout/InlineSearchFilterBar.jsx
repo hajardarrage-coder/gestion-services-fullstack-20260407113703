@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Search, X } from 'lucide-react';
+import { ChevronDown, Plus, Search, X } from 'lucide-react';
+
+const CUSTOM_FIELD = '__custom_field__';
 
 const normalizeKey = (value) =>
   String(value || '')
@@ -19,6 +21,8 @@ const InlineSearchFilterBar = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeField, setActiveField] = useState('');
+  const [manualField, setManualField] = useState('');
+  const [manualValue, setManualValue] = useState('');
   const triggerRef = useRef(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
 
@@ -48,11 +52,26 @@ const InlineSearchFilterBar = ({
     setFilters((prev) => [...(prev || []), { field: normalizedField, value: normalizedValue }]);
   };
 
+  const closeMenu = () => {
+    setIsOpen(false);
+    setActiveField('');
+    setManualField('');
+    setManualValue('');
+  };
+
   const removeFilter = (indexToRemove) => {
     setFilters((prev) => (prev || []).filter((_, idx) => idx !== indexToRemove));
   };
 
   const availableValues = activeField ? valueOptions[activeField] || [] : [];
+
+  const addManualFilter = () => {
+    const field = manualField.trim();
+    const value = manualValue.trim();
+    if (!field || !value) return;
+    addFilter(field, value);
+    closeMenu();
+  };
 
   useEffect(() => {
     if (!isOpen || !triggerRef.current) return;
@@ -120,6 +139,21 @@ const InlineSearchFilterBar = ({
             <ChevronDown size={14} />
           </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(true);
+            setActiveField(CUSTOM_FIELD);
+            setManualField('');
+            setManualValue('');
+          }}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-700 transition"
+          title="Ajouter un champ manuel"
+          aria-label="Ajouter un champ manuel"
+        >
+          <Plus size={14} />
+        </button>
       </div>
 
       {isOpen && createPortal(
@@ -141,10 +175,79 @@ const InlineSearchFilterBar = ({
                     {field.label}
                   </button>
                 ))}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    onClick={() => {
+                      setActiveField(CUSTOM_FIELD);
+                      setManualField('');
+                      setManualValue('');
+                    }}
+                  >
+                    + Champ manuel
+                  </button>
+                </div>
               </div>
             )}
 
-            {activeField && (
+            {activeField === CUSTOM_FIELD && (
+              <div className="p-3 space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-[10px] uppercase tracking-widest text-slate-400">Champ manuel</p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveField('')}
+                    className="text-xs text-slate-400 hover:text-slate-600"
+                  >
+                    Retour
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={manualField}
+                    onChange={(e) => setManualField(e.target.value)}
+                    placeholder="Nom du champ (ex: specialite)"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-slate-300"
+                  />
+                  <input
+                    type="text"
+                    value={manualValue}
+                    onChange={(e) => setManualValue(e.target.value)}
+                    placeholder="Valeur"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-slate-300"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addManualFilter();
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeMenu}
+                    className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addManualFilter}
+                    disabled={!manualField.trim() || !manualValue.trim()}
+                    className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Ajouter
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeField && activeField !== CUSTOM_FIELD && (
               <div className="p-2">
                 <div className="flex items-center justify-between px-2 py-1">
                   <p className="text-[10px] uppercase tracking-widest text-slate-400">
@@ -166,8 +269,7 @@ const InlineSearchFilterBar = ({
                       className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50"
                       onClick={() => {
                         addFilter(activeField, val);
-                        setIsOpen(false);
-                        setActiveField('');
+                        closeMenu();
                       }}
                     >
                       {val}

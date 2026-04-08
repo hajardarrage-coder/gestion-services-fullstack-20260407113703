@@ -22,6 +22,7 @@ const EMPTY_FORM = {
   date_affectation_mesrsfc: '',
   date_affectation_enseignement: '',
   code_departement: '',
+  filiere_prof: '',
   fonction_exercee: '',
   service_affectation: '',
   situation_administrative: '',
@@ -115,6 +116,14 @@ const PersonnelPage = () => {
   }, [isExportOpen]);
 
   const buildFormDataFromItem = (item = {}) => {
+    const normalizeGenreValue = (value) => {
+      const normalized = String(value || '').trim().toLowerCase();
+      if (!normalized) return '';
+      if (normalized === 'homme' || normalized === 'masculin') return 'Homme';
+      if (normalized === 'femme' || normalized === 'feminin' || normalized === 'féminin') return 'Femme';
+      return '';
+    };
+
     const next = { ...EMPTY_FORM };
     Object.keys(EMPTY_FORM).forEach((key) => {
       if (key === 'situation_handicap') {
@@ -126,6 +135,8 @@ const PersonnelPage = () => {
         } else {
           next[key] = '';
         }
+      } else if (key === 'genre') {
+        next[key] = normalizeGenreValue(item?.[key]);
       } else {
         next[key] = item?.[key] ?? '';
       }
@@ -231,6 +242,7 @@ const PersonnelPage = () => {
       { key: 'date_affectation_mesrsfc', label: 'Affectation MESRSFC' },
       { key: 'date_affectation_enseignement', label: 'Affectation enseignement' },
       { key: 'code_departement', label: 'Code departement' },
+      { key: 'filiere_prof', label: 'Filiere de prof' },
       { key: 'fonction_exercee', label: 'Fonction exercee' },
       { key: 'service_affectation', label: 'Service affectation' },
       { key: 'situation_administrative', label: 'Situation administrative' },
@@ -442,7 +454,7 @@ const PersonnelPage = () => {
   const showTeacherFields = typePersonnel === 'enseignant';
   const showAdminFields = typePersonnel === 'administratif';
 
-  const genreOptions = selectOptions.genre || ['Masculin', 'Feminin', 'Autre'];
+  const genreOptions = selectOptions.genre || ['Femme', 'Homme'];
   const typeOptions = selectOptions.type_personnel || ['Enseignant', 'Administratif'];
 
   const allowedFilterKeys = useMemo(() => new Set(['type_personnel']), []);
@@ -575,8 +587,7 @@ const PersonnelPage = () => {
         </div>
       )}
 
-      {!showEnseignantTable && (
-        <div className="card-minimal p-0 overflow-hidden">
+      <div className="card-minimal p-0 overflow-hidden">
           <div className="p-6 border-b border-slate-100 bg-slate-50/40 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-3">
@@ -680,7 +691,6 @@ const PersonnelPage = () => {
             </div>
           </div>
         </div>
-      )}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
@@ -798,6 +808,15 @@ const PersonnelPage = () => {
                           type="date"
                           value={formData.date_affectation_enseignement}
                           onChange={(e) => setFormData((prev) => ({ ...prev, date_affectation_enseignement: e.target.value }))}
+                          className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
+                        Filiere de prof
+                        <input
+                          type="text"
+                          value={formData.filiere_prof}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, filiere_prof: e.target.value }))}
                           className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700"
                         />
                       </label>
