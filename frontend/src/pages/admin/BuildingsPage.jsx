@@ -7,13 +7,15 @@ import InlineSearchFilterBar from '../../components/layout/InlineSearchFilterBar
 
 const TYPE_LOCAL_OPTIONS = [
   'Salle de cours',
-  'TD',
-  'TP',
-  'Amphithéâtre',
+  'Salle de TD',
+  'Salle de TP',
+  'Amphitheatre',
   'Laboratoire',
+  'Bureau prof',
+  'Bureau admin',
+  'Bibliotheque',
+  'Salle de conference',
   'Administration',
-  'Bureau professeur',
-  'Salle de conférence',
 ];
 
 const EMPTY_FORM = {
@@ -220,9 +222,14 @@ const BuildingsPage = () => {
     [filterOptions, allowedFilterKeys]
   );
   const visibleValueOptions = useMemo(() => {
-    const next = {};
-    if (valueOptions?.type_local) next.type_local = valueOptions.type_local;
-    return next;
+    const mergedTypeOptions = Array.from(
+      new Set([...(TYPE_LOCAL_OPTIONS || []), ...(valueOptions?.type_local || [])])
+    )
+      .map((value) => String(value || '').trim())
+      .filter((value) => value !== '')
+      .sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+
+    return { type_local: mergedTypeOptions };
   }, [valueOptions]);
 
   const pushNotice = (type, message) => {
